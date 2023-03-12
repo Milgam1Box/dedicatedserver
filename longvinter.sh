@@ -28,7 +28,7 @@ echo
 cd ~
 
 sudo apt update -y 
-sudo apt install git git-lfs screen net-tools steamcmd -y 
+sudo apt install git git-lfs screen net-tools -y 
 
 sudo add-apt-repository multiverse
 sudo dpkg --add-architecture i386
