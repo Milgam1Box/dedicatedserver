@@ -28,7 +28,7 @@ echo
 cd ~
 
 sudo apt update -y 
-sudo apt install git git-lfs steamcmd -y 
+sudo apt install git git-lfs screen steamcmd -y 
 
 sudo add-apt-repository multiverse
 sudo dpkg --add-architecture i386
@@ -89,14 +89,24 @@ ChestRespawnTime=600
 EOF
 
 
+clear
 
-## 완료 
+## 완료 ##
+echo
+echo
+echo
+echo
+echo
+echo "---------------------------------------------------------------------------"
 echo "설치가 완료 되었습니다"
 echo "아래 명령어를 사용하여 서버 설정을 마무리 하세요" 
+echo "---------------------------------------------------------------------------"
 echo "nano ~/longvinter-linux-server/Longvinter/Saved/Config/LinuxServer/Game.ini"
 echo
 echo
+echo "---------------------------------------------------------------------------"
 echo "서버 실행은 아래 명령어를 사용하세요"
+echo "---------------------------------------------------------------------------"
 echo "sh ~/longvinter-linux-server/LongvinterServer.sh"    
 
 
