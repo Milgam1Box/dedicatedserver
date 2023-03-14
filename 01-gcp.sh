@@ -8,5 +8,6 @@ echo
 sudo useradd -m -d /home/steam steamcmd
 sudo passwd steamcmd
 sudo usermod -aG sudo steamcmd
+cd /home/steam
 sudo su steamcmd
-cd 
+
