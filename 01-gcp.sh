@@ -9,4 +9,3 @@ sudo useradd -m -d /home/steam steamcmd
 sudo passwd steamcmd
 sudo usermod -aG sudo steamcmd
 sudo su steamcmd
-
