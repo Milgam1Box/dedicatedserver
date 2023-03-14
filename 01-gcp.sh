@@ -10,4 +10,5 @@ sudo passwd steamcmd
 sudo usermod -aG sudo steamcmd
 cd /home/steam
 sudo su steamcmd
+pwd
 
