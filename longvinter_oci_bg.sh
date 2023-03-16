@@ -75,6 +75,8 @@ sudo cp /home/steam/longvinter-linux-server/longvinter.service /etc/systemd/syst
 sudo cp /home/steam/longvinter-linux-server/longvinter.socket /etc/systemd/system/longvinter.socket
 sudo systemctl daemon-reload
 
+## 유저 변경 ##
+sudo su - steamcmd
 
 
 clear
