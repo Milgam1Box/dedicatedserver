@@ -123,7 +123,4 @@ echo "실시간 서버 로그 확인은 아래 명령어를 사용하세요"
 echo "---------------------------------------------------------------------------"
 echo "sudo journalctl -u longvinter -f"
 echo
-echo
-echo
-## 유저 변경 ##
-sudo su - steamcmd
+
