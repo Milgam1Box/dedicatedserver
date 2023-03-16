@@ -5,7 +5,7 @@
 
 # 패키지 업데이트 & 설치
 
-cd ~
+cd /home/steam
 
 sudo apt update -y 
 sudo apt install git git-lfs screen net-tools -y 
@@ -18,7 +18,7 @@ sudo apt install lib32gcc-s1 steamcmd -y
 
 # 스팀 SDK 설치
 
-cd ~/
+cd /home/steam
 
 mkdir steamcmd-source
 cd steamcmd-source
@@ -28,9 +28,9 @@ tar -xvzf steamcmd_linux.tar.gz
 
 
 # Copying Steam SDK to the right place
-cd ~/.steam
+cd /home/steam/.steam
 mkdir sdk64
-cp ~/steamcmd-source/linux64/steamclient.so ~/.steam/sdk64/
+cp /home/steam/steamcmd-source/linux64/steamclient.so ~/.steam/sdk64/
 
 
 # 방화벽 개방
@@ -44,7 +44,7 @@ sudo ufw allow 27016
 sudo ufw allow 27015
 
 #서버 설치
-cd ~/
+cd /home/steam
 git clone https://github.com/Uuvana-Studios/longvinter-linux-server.git
 sudo chmod -R ugo+rwx longvinter-linux-server/
 
