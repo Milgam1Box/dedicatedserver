@@ -96,8 +96,7 @@ sudo cp /home/steam/longvinter-linux-server/longvinter.service /etc/systemd/syst
 sudo cp /home/steam/longvinter-linux-server/longvinter.socket /etc/systemd/system/longvinter.socket
 sudo systemctl daemon-reload
 
-## 유저 변경 ##
-sudo su - steamcmd
+
 
 
 clear
@@ -114,14 +113,17 @@ echo "아래 명령어를 사용하여 서버 설정을 마무리 하세요"
 echo "---------------------------------------------------------------------------"
 echo "nano ~/longvinter-linux-server/Longvinter/Saved/Config/LinuxServer/Game.ini"
 echo
-echo
 echo "---------------------------------------------------------------------------"
 echo "서버 실행은 아래 명령어를 사용하세요"
 echo "---------------------------------------------------------------------------"
 echo "sudo systemctl start longvinter.service"    
 echo
-echo
 echo "---------------------------------------------------------------------------"
 echo "실시간 서버 로그 확인은 아래 명령어를 사용하세요"
 echo "---------------------------------------------------------------------------"
 echo "sudo journalctl -u longvinter -f"
+echo
+echo
+echo
+## 유저 변경 ##
+sudo su - steamcmd
