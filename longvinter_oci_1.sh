@@ -6,31 +6,6 @@ echo
 sleep 2
 
 
-
-# Stop on error
-set -e
-
-cd
-
-while :; do
-    echo
-    echo
-    echo "롱빈터 서버 구축 스크립트를 동작 합니다 "
-    echo -n "시작 하겠습니까? [yes/no]  "
-
-    read -r answer
-
-    case $answer in
-        YES|Yes|yes|y)
-            break;;
-        NO|No|no|n)
-            echo Aborting; exit;;
-    esac
-done
-
-echo
-
-
 sudo useradd -m -d /home/steam steamcmd
 sudo passwd steamcmd
 sudo usermod -aG sudo steamcmd
