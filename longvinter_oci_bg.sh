@@ -19,7 +19,6 @@ sudo apt install lib32gcc-s1 steamcmd -y
 # 스팀 SDK 설치
 
 cd /home/steam
-
 mkdir steamcmd-source
 cd steamcmd-source
 wget https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz
@@ -30,7 +29,7 @@ tar -xvzf steamcmd_linux.tar.gz
 # Copying Steam SDK to the right place
 cd /home/steam/.steam
 mkdir sdk64
-cp /home/steam/steamcmd-source/linux64/steamclient.so ~/.steam/sdk64/
+cp /home/steam/steamcmd-source/linux64/steamclient.so /home/steam/.steam/sdk64/
 
 
 # 방화벽 개방
@@ -51,7 +50,7 @@ sudo chmod -R ugo+rwx longvinter-linux-server/
 
 # 환경 변수 파일 
 
-cat <<-EOF > ~/longvinter-linux-server/Longvinter/Saved/Config/LinuxServer/Game.ini
+cat <<-EOF > /home/steam/longvinter-linux-server/Longvinter/Saved/Config/LinuxServer/Game.ini
 [/Game/Blueprints/Server/GI_AdvancedSessions.GI_AdvancedSessions_C]
 ServerName=Unnamed Island
 ServerTag=Default
