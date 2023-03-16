@@ -44,7 +44,8 @@ mkdir steamcmd-source
 cd /home/steam/steamcmd-source
 wget https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz
 tar -xvzf steamcmd_linux.tar.gz
-/home/steam/steamcmd-source/steamcmd.sh +force_install_dir . +login anonymous +app_update 1007 +quit
+./steamcmd.sh +force_install_dir . +login anonymous +app_update 1007 +quit
+
 
 
 # Copying Steam SDK to the right place
