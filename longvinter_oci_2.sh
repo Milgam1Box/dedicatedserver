@@ -23,7 +23,7 @@ while :; do
 done
 
 echo
-
+ 
 # 패키지 업데이트 & 설치
 
 cd /home/steam
