@@ -20,10 +20,10 @@ sudo apt install lib32gcc-s1 steamcmd -y
 
 cd /home/steam
 mkdir steamcmd-source
-cd steamcmd-source
+cd /home/steam/steamcmd-source
 wget https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz
 tar -xvzf steamcmd_linux.tar.gz
-./steamcmd.sh +force_install_dir . +login anonymous +app_update 1007 +quit
+/home/steam/steamcmd.sh +force_install_dir . +login anonymous +app_update 1007 +quit
 
 
 # Copying Steam SDK to the right place
