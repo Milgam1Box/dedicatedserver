@@ -10,6 +10,6 @@ sudo useradd -m -d /home/steam steamcmd
 sudo passwd steamcmd
 sudo usermod -aG sudo steamcmd
 sudo chsh -s /bin/bash steamcmd 
-sudo su - steamcmd -c 'cd && bash <(curl -s https://raw.githubusercontent.com/KorTechTim/dedicatedserver/main/longvinter_oci_bg.sh)'
+sudo su - steamcmd
 
 
