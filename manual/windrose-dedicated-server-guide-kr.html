@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>전용 서버 가이드 – Windrose</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600&family=Cinzel:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #0f0e0c;
+  --bg2:       #161410;
+  --bg3:       #1e1b16;
+  --border:    #2e2a22;
+  --border2:   #3d3830;
+  --gold:      #c8973a;
+  --gold-lt:   #e8b85a;
+  --gold-dim:  #7a5c22;
+  --text:      #d4cfc6;
+  --text-dim:  #8a8276;
+  --text-faint:#55504a;
+  --red:       #c44a3a;
+  --red-bg:    #2a1410;
+  --blue:      #4a8cb8;
+  --blue-bg:   #101e2a;
+  --green:     #5a9e5a;
+  --green-bg:  #101a10;
+  --amber:     #c8873a;
+  --amber-bg:  #221808;
+  --code-bg:   #13120f;
+  --radius:    6px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.75;
+  min-height: 100vh;
+}
+
+/* ── Grain texture overlay ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+  opacity: .5;
+}
+
+/* ── TOP NAV ── */
+.topnav {
+  background: rgba(15,14,12,0.97);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(8px);
+}
+
+.topnav-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  height: 56px;
+}
+
+.nav-logo {
+  font-family: 'Cinzel', serif;
+  font-size: 17px;
+  color: var(--gold);
+  letter-spacing: 2px;
+  text-decoration: none;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-logo::before {
+  content: '⚓';
+  font-size: 18px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.nav-links a {
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  padding: 5px 12px;
+  border-radius: var(--radius);
+  transition: color .2s, background .2s;
+}
+
+.nav-links a:hover { color: var(--gold-lt); background: rgba(200,151,58,0.08); }
+.nav-links a.active { color: var(--gold); background: rgba(200,151,58,0.12); }
+
+/* ── BREADCRUMB ── */
+.breadcrumb {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 14px 24px 0;
+  font-size: 12px;
+  color: var(--text-faint);
+}
+.breadcrumb a { color: var(--text-dim); text-decoration: none; }
+.breadcrumb a:hover { color: var(--gold); }
+.breadcrumb span { margin: 0 6px; }
+
+/* ── LAYOUT ── */
+.layout {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 48px;
+  align-items: start;
+}
+
+/* ── MAIN CONTENT ── */
+main { min-width: 0; padding-top: 32px; }
+
+.doc-header {
+  margin-bottom: 36px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--border);
+}
+
+.doc-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.doc-label::before, .doc-label::after {
+  content: '';
+  display: inline-block;
+  height: 1px;
+  background: var(--gold-dim);
+}
+.doc-label::before { width: 24px; }
+.doc-label::after  { flex: 1; }
+
+h1.page-title {
+  font-family: 'Cinzel', serif;
+  font-size: 36px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 1px;
+  line-height: 1.2;
+  margin-bottom: 16px;
+}
+
+.doc-meta {
+  font-size: 12px;
+  color: var(--text-faint);
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.doc-meta span { display: flex; align-items: center; gap: 6px; }
+
+.intro-text {
+  color: var(--text-dim);
+  margin-bottom: 12px;
+  line-height: 1.8;
+}
+
+/* ── SECTIONS ── */
+.section { margin-bottom: 56px; }
+
+h2.sec-title {
+  font-family: 'Cinzel', serif;
+  font-size: 22px;
+  color: var(--gold-lt);
+  font-weight: 600;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+h2.sec-title .sec-icon {
+  width: 32px;
+  height: 32px;
+  background: rgba(200,151,58,0.12);
+  border: 1px solid var(--gold-dim);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+h3.sub-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #e0dbd2;
+  margin: 28px 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+h3.sub-title::before {
+  content: '';
+  width: 3px;
+  height: 16px;
+  background: var(--gold);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+h4.mini-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 20px 0 8px;
+  letter-spacing: 0.3px;
+}
+
+p { margin-bottom: 14px; color: var(--text); }
+
+/* ── CALLOUT BOXES ── */
+.callout {
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  margin: 20px 0;
+  font-size: 14px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  line-height: 1.7;
+}
+
+.callout-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+
+.callout.info    { background: var(--blue-bg);  border: 1px solid #2a4a6a; color: #8ab8d8; }
+.callout.warning { background: var(--red-bg);   border: 1px solid #5a2a20; color: #d48878; }
+.callout.tip     { background: var(--amber-bg); border: 1px solid #4a3010; color: #c8a060; }
+.callout.success { background: var(--green-bg); border: 1px solid #2a4a2a; color: #88c888; }
+
+.callout strong { color: inherit; font-weight: 700; }
+.callout a { color: inherit; text-decoration: underline; opacity: .8; }
+
+/* ── CODE ── */
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  overflow-x: auto;
+  margin: 16px 0;
+  position: relative;
+}
+
+pre::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--gold-dim), transparent);
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: #c8c0a8;
+  line-height: 1.7;
+}
+
+p code, li code, td code {
+  background: rgba(200,151,58,0.1);
+  border: 1px solid rgba(200,151,58,0.2);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 12.5px;
+  color: var(--gold-lt);
+}
+
+/* ── TABLES ── */
+.table-wrap { overflow-x: auto; margin: 20px 0; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+thead tr {
+  background: var(--bg3);
+  border-bottom: 2px solid var(--gold-dim);
+}
+
+th {
+  text-align: left;
+  padding: 12px 16px;
+  color: var(--gold);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+td {
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  vertical-align: top;
+}
+
+td:first-child {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px;
+  color: var(--gold-lt);
+  white-space: nowrap;
+}
+
+tbody tr:hover { background: rgba(200,151,58,0.03); }
+
+/* ── LISTS ── */
+ul, ol {
+  padding-left: 24px;
+  margin-bottom: 14px;
+}
+
+li {
+  margin-bottom: 6px;
+  color: var(--text);
+}
+
+li::marker { color: var(--gold-dim); }
+
+/* ── FAQ ACCORDION ── */
+.faq-item {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+  overflow: hidden;
+  transition: border-color .2s;
+}
+
+.faq-item:hover { border-color: var(--border2); }
+.faq-item.open  { border-color: var(--gold-dim); }
+
+.faq-q {
+  padding: 16px 20px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg2);
+  user-select: none;
+  transition: color .2s, background .2s;
+}
+
+.faq-q:hover { color: var(--gold-lt); background: var(--bg3); }
+.faq-item.open .faq-q { color: var(--gold-lt); background: var(--bg3); }
+
+.faq-chevron {
+  font-size: 12px;
+  color: var(--text-faint);
+  transition: transform .25s;
+  flex-shrink: 0;
+}
+
+.faq-item.open .faq-chevron { transform: rotate(180deg); color: var(--gold); }
+
+.faq-a {
+  display: none;
+  padding: 0 20px 20px;
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  font-size: 14px;
+  color: var(--text-dim);
+}
+
+.faq-item.open .faq-a { display: block; padding-top: 16px; }
+
+.faq-a p { color: var(--text-dim); font-size: 14px; margin-bottom: 10px; }
+.faq-a h4.mini-title { margin-top: 16px; }
+
+/* ── SYSREQ GRID ── */
+.sysreq-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.sysreq-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  text-align: center;
+}
+
+.sysreq-card .label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+  margin-bottom: 10px;
+}
+
+.sysreq-card .spec {
+  font-size: 12.5px;
+  color: var(--text-dim);
+  line-height: 1.7;
+}
+
+.sysreq-card .spec strong {
+  display: block;
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* ── SIDEBAR / TOC ── */
+.sidebar {
+  position: sticky;
+  top: 72px;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+  padding: 24px 0;
+}
+
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+.toc-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 14px;
+  padding-left: 2px;
+}
+
+.toc-list { list-style: none; padding: 0; }
+
+.toc-list li { margin-bottom: 1px; }
+
+.toc-list a {
+  display: block;
+  font-size: 12.5px;
+  color: var(--text-faint);
+  text-decoration: none;
+  padding: 5px 10px 5px 12px;
+  border-left: 2px solid transparent;
+  border-radius: 0 3px 3px 0;
+  transition: color .15s, border-color .15s, background .15s;
+  line-height: 1.4;
+}
+
+.toc-list a:hover {
+  color: var(--text);
+  border-color: var(--border2);
+  background: rgba(255,255,255,0.02);
+}
+
+.toc-list a.active {
+  color: var(--gold);
+  border-color: var(--gold);
+  background: rgba(200,151,58,0.06);
+}
+
+.toc-list .toc-sub a {
+  padding-left: 24px;
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
+/* ── HR ── */
+hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 40px 0;
+}
+
+/* ── STEP LIST ── */
+.step-list { list-style: none; padding: 0; counter-reset: step; }
+
+.step-list li {
+  counter-increment: step;
+  display: flex;
+  gap: 14px;
+  margin-bottom: 14px;
+  align-items: flex-start;
+}
+
+.step-list li::before {
+  content: counter(step);
+  min-width: 26px;
+  height: 26px;
+  background: rgba(200,151,58,0.15);
+  border: 1px solid var(--gold-dim);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--gold);
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+
+/* ── BACK LINK ── */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: 13px;
+  margin-top: 48px;
+  padding: 10px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: color .2s, border-color .2s;
+}
+
+.back-link:hover { color: var(--gold); border-color: var(--gold-dim); }
+
+/* ── PLATFORM BADGES ── */
+.platform-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 16px 0;
+}
+
+.platform-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-dim);
+  background: var(--bg2);
+  text-decoration: none;
+  transition: all .2s;
+}
+
+.platform-btn:hover {
+  color: var(--gold-lt);
+  border-color: var(--gold-dim);
+  background: rgba(200,151,58,0.06);
+}
+
+/* ── CHOICE CARDS ── */
+.choice-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin: 16px 0;
+}
+
+.choice-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  transition: border-color .2s;
+}
+
+.choice-card:hover { border-color: var(--border2); }
+
+.choice-card .badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gold);
+  background: rgba(200,151,58,0.12);
+  border: 1px solid var(--gold-dim);
+  border-radius: 3px;
+  padding: 2px 8px;
+  margin-bottom: 10px;
+}
+
+.choice-card h4 { font-size: 15px; color: var(--text); margin-bottom: 6px; }
+.choice-card p  { font-size: 13px; color: var(--text-dim); margin: 0; }
+
+/* ── ANCHOR TARGETS ── */
+[id] { scroll-margin-top: 80px; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 820px) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+  h1.page-title { font-size: 26px; }
+  .sysreq-grid { grid-template-columns: 1fr; }
+  .choice-grid { grid-template-columns: 1fr; }
+  .nav-links { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a class="nav-logo" href="#">Windrose</a>
+
+  </div>
+</nav>
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb">
+  <a href="#">홈</a><span>/</span>전용 서버 가이드
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+<!-- ── MAIN ── -->
+<main>
+
+  <div class="doc-header">
+    <div class="doc-label">Windrose — 공식 문서</div>
+    <h1 class="page-title">전용 서버 가이드</h1>
+    <div class="doc-meta">
+      <span>📅 발행: 2026년 4월 14일</span>
+      <span>🔄 업데이트: 2026년 4월 17일</span>
+    </div>
+  </div>
+
+  <p class="intro-text">
+    이 가이드는 Windrose 전용 서버를 설정하는 방법을 설명합니다.<br>
+    동일한 가이드가 Steam에서 무료로 제공되는 Windrose 전용 서버 앱의 게임 파일 내 <code>DedicatedServer.md</code> 파일에도 포함되어 있습니다. 두 가이드 모두 유효하며 거의 동일합니다.
+  </p>
+  <p class="intro-text">
+    궁금한 점이 있으시면 <a href="https://discord.gg/windrose" style="color:var(--gold);text-decoration:none;" target="_blank">Discord 커뮤니티</a>에서 문의해 주세요.
+  </p>
+
+  <div class="callout info">
+    <span class="callout-icon">ℹ️</span>
+    <div>읽기 전에: 캐시를 지우고 최신 버전을 보려면 <strong>Ctrl + Shift + R</strong>로 강력 새로고침을 먼저 해 주세요.</div>
+  </div>
+
+  <hr>
+
+  <!-- WHY -->
+  <div class="section" id="wsg-why">
+    <h2 class="sec-title"><span class="sec-icon">⚓</span>전용 서버를 운영하는 이유</h2>
+    <p>전용 서버는 항상 가동 중인 세계를 유지할 수 있게 해줍니다. 호스트가 온라인이 아니어도 언제든지 친구들과 접속할 수 있습니다. 일정이 맞지 않는 경우에도 함께 즐길 수 있어 협동 플레이에 최적입니다 — 혼자 배를 조립하고 나중에 함께 항해하는 식으로요.</p>
+    <p>전용 서버는 모든 세계 게임 설정(및 몇 가지 추가 옵션)을 지원하여 모험을 완전히 커스터마이즈할 수 있습니다. 팀원에 맞게 협동 혼돈을 조율하는 데 최고입니다!</p>
+  </div>
+
+  <hr>
+
+  <!-- SETUP -->
+  <div class="section" id="wsg-setup">
+    <h2 class="sec-title"><span class="sec-icon">🗺️</span>초기 설정 및 호스팅</h2>
+
+    <p>플랫폼에 따라 Windrose 전용 서버를 받는 방법은 두 가지입니다: Steam, EGS, 또는 Stove.</p>
+    <p>게임을 다운로드한 후 게임 내 파일로 이동하여 <code>R5\Builds</code> 폴더를 여세요. 그 안에 <code>WindroseServer</code> 폴더가 있습니다. 이것이 전용 서버입니다. 배포하려면 이 폴더를 PC의 다른 위치에 복사하세요. <strong>게임 폴더 내에서는 작동하지 않습니다.</strong></p>
+    <p>또는 Steam에서 무료로 제공되는 Windrose 전용 서버 앱을 다운로드할 수 있습니다.</p>
+
+    <div class="callout warning">
+      <span class="callout-icon">⚠️</span>
+      <div>저희 팀은 어떤 플랫폼에서도 절대로 로그인 정보나 비밀번호를 요청하지 않습니다. 수상한 점을 발견하시면 즉시 <a href="mailto:support@playwindrose.com">support@playwindrose.com</a>으로 문의해 주세요.</div>
+    </div>
+
+    <h3 class="sub-title" id="wsg-egs">EGS / Stove로 플레이하는 경우</h3>
+    <p>게임 파일에서 <code>R5\Builds\WindowsServer</code> 폴더를 복사하여 PC의 원하는 위치에 붙여넣으세요. 그런 다음 아래 설정 방법 중 하나를 선택하세요:</p>
+
+    <div class="choice-grid">
+      <div class="choice-card">
+        <div class="badge">간단 설정</div>
+        <h4>빠른 시작</h4>
+        <p>기본값으로 즉시 서버를 실행합니다. 빠르게 시작하고 싶을 때 추천합니다.</p>
+      </div>
+      <div class="choice-card">
+        <div class="badge">고급 설정</div>
+        <h4>완전 커스터마이즈</h4>
+        <p>설정 파일을 직접 편집하여 서버를 세밀하게 조정합니다.</p>
+      </div>
+    </div>
+
+    <h3 class="sub-title" id="wsg-steam">Steam으로 플레이하는 경우</h3>
+    <ol class="step-list">
+      <li><strong>Steam에서 설치</strong> — Steam 라이브러리의 <strong>도구</strong> 섹션으로 이동합니다. 게임 목록 위의 드롭다운 필터에서 "도구"를 선택하고 "Windrose Dedicated Server"를 검색하여 설치합니다.</li>
+      <li><strong>파일 접근</strong> — Steam에서 직접 실행할 수 있지만 설정을 위해서는 로컬 파일이 필요합니다. "Windrose Dedicated Server"를 우클릭 → <strong>관리</strong> → <strong>로컬 파일 보기</strong>.</li>
+      <li><strong>설정 방식 선택</strong> — 간단 설정(빠른 시작) 또는 고급 설정(완전 커스터마이즈) 중 선택합니다.</li>
+    </ol>
+  </div>
+
+  <hr>
+
+  <!-- SIMPLE -->
+  <div class="section" id="wsg-simple">
+    <h2 class="sec-title"><span class="sec-icon">⚡</span>간단 설정</h2>
+    <p>PC에서 서버를 빠르게 시작하고 싶을 때 완벽합니다! 두 가지 실행 방법이 있습니다:</p>
+    <p><code>StartServerForeground.bat</code> — <strong>권장</strong>. 서버가 별도의 명령줄 창에서 실행되어 게임 로그를 확인할 수 있습니다. 창을 닫으면 종료됩니다.</p>
+    <p><code>WindroseServer.exe</code> — 서버를 백그라운드 프로세스로 실행할 때 사용합니다. 작업 관리자에서 프로세스를 종료해야 합니다.</p>
+
+    <ol class="step-list">
+      <li>원하는 방법으로 실행합니다(bat 파일 권장).</li>
+      <li><code>StartServerForeground.bat</code>를 사용하면 콘솔 창이 나타납니다.</li>
+      <li>로딩이 완료되면 <code>f1014dc1</code>와 같은 초대 코드를 확인합니다.</li>
+      <li>너무 빨리 스크롤됐다면 서버 폴더 → <code>R5</code> 폴더 → <code>ServerDescription.json</code>을 여세요.</li>
+      <li>텍스트 편집기(메모장도 됩니다)로 파일을 열어 초대 코드를 찾습니다.</li>
+      <li>게임 실행: <strong>플레이 → 서버 연결</strong> → 초대 코드 붙여넣기.</li>
+      <li>친구들에게 초대 코드를 공유하면 동일한 방식으로 접속할 수 있습니다.</li>
+    </ol>
+
+    <div class="callout success">
+      <span class="callout-icon">🏴‍☠️</span>
+      <div><strong>야르르!</strong> 끝입니다. 즐거운 Windrose 되세요!</div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ADVANCED -->
+  <div class="section" id="wsg-advanced">
+    <h2 class="sec-title"><span class="sec-icon">⚙️</span>고급 설정</h2>
+    <p>서버 설정은 두 개의 <code>.json</code> 파일로 나뉩니다:</p>
+    <p><code>ServerDescription.json</code> — 공통 서버 설정 (루트 폴더에 하나의 파일).<br>
+    <code>WorldDescription.json</code> — 세계별 하나씩, 세계 관련 세부 설정.</p>
+
+    <div class="callout info">
+      <span class="callout-icon">ℹ️</span>
+      <div>서버는 처음 실행 시 기본 버전을 자동으로 생성합니다. 서버를 한 번 시작하고 종료하여 파일을 생성한 다음 편집하세요.</div>
+    </div>
+  </div>
+
+  <!-- SERVER DESC -->
+  <div class="section" id="wsg-serverdesc">
+    <h2 class="sec-title"><span class="sec-icon">📄</span>ServerDescription.json</h2>
+    <p>앱 루트 폴더의 단일 파일입니다.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>필드</th><th>설명</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>PersistentServerId</td><td>서버의 고유 식별자. 이 값은 수정하지 마세요. <em>참고: 향후 빌드에서 변경될 예정입니다.</em></td></tr>
+          <tr><td>InviteCode</td><td>서버를 찾는 데 사용하는 초대 코드. 허용 문자: <code>0–9</code>, <code>a–z</code>, <code>A–Z</code>. 최소 6자 이상, 대소문자 구분.</td></tr>
+          <tr><td>IsPasswordProtected</td><td>비밀번호 필요 여부. 비밀번호가 설정된 경우 <code>true</code>, 비밀번호 필드가 비어있으면 <code>false</code>.</td></tr>
+          <tr><td>Password</td><td>서버 비밀번호.</td></tr>
+          <tr><td>ServerName</td><td>서버 이름. 유사한 초대 코드를 가진 서버를 구별하는 데 유용합니다.</td></tr>
+          <tr><td>WorldIslandId</td><td>선택한 세계의 ID. 서버의 <code>WorldDescription.json</code> 중 하나의 해당 값과 일치해야 합니다.</td></tr>
+          <tr><td>MaxPlayerCount</td><td>서버에 동시 접속할 수 있는 최대 플레이어 수.</td></tr>
+          <tr><td>UserSelectedRegion</td><td>연결 서비스 지역: <code>SEA</code>, <code>CIS</code>, <code>EU</code> (EU는 EU와 NA 모두 포함). 비워두면 지연 시간 기준으로 최적 지역을 자동 선택.</td></tr>
+          <tr><td>P2pProxyAddress</td><td>리스닝 소켓에 사용되는 IP 주소.</td></tr>
+          <tr><td>UseDirectConnection</td><td><code>true</code>: 직접 클라이언트 연결용 소켓 생성. <code>false</code>: P2P 연결에 ICE 프로토콜 사용.</td></tr>
+          <tr><td>DirectConnectionServerPort</td><td>직접 연결용 포트. <code>UseDirectConnection</code>이 <code>true</code>인 경우 TCP와 UDP 모두 사용 가능해야 합니다.</td></tr>
+          <tr><td>DirectConnectionProxyAddress</td><td>호스트 머신의 특정 네트워크 인터페이스를 선택하는 데 사용. 기본값: <code>0.0.0.0</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout warning">
+      <span class="callout-icon">⚠️</span>
+      <div><strong>중요:</strong> 이 파일은 서버가 종료된 상태에서만 수정해야 합니다. 문제가 감지되면 일부 필드는 서버에 의해 자동으로 조정될 수 있습니다.</div>
+    </div>
+
+    <h4 class="mini-title">JSON 예시</h4>
+    <pre><code>{
+  "Version": 1,
+  "DeploymentId": "0.10.0.0.251-master-9f800c33",
+  "ServerDescription_Persistent": {
+    "PersistentServerId": "1B80182E460F727CEA080C8EEBB1EA0A",
+    "InviteCode": "d6221bb7",
+    "IsPasswordProtected": false,
+    "Password": "",
+    "ServerName": "",
+    "WorldIslandId": "DB57768A8A7746899683D0EEE91F97BF",
+    "MaxPlayerCount": 4,
+    "UserSelectedRegion": "EU",
+    "P2pProxyAddress": "192.168.31.49",
+    "UseDirectConnection": false,
+    "DirectConnectionServerAddress": "",
+    "DirectConnectionServerPort": 7777,
+    "DirectConnectionProxyAddress": "0.0.0.0"
+  }
+}</code></pre>
+  </div>
+
+  <hr>
+
+  <!-- WORLD DESC -->
+  <div class="section" id="wsg-worlddesc">
+    <h2 class="sec-title"><span class="sec-icon">🌍</span>WorldDescription.json</h2>
+    <p>필요한 만큼 세계를 생성할 수 있습니다. 모든 세계는 다음 경로에 있습니다:</p>
+    <pre><code>&lt;root&gt;/R5/Saved/SaveProfiles/Default/RocksDB/&lt;game version&gt;/Worlds/&lt;world id&gt;/WorldDescription.json</code></pre>
+    <p>첫 번째 세계는 서버 시작 시 자동으로 생성됩니다.</p>
+
+    <div class="callout warning">
+      <span class="callout-icon">⚠️</span>
+      <div><code>WorldIslandId</code>는 이 폴더의 <code>WorldDescription.json</code>에 있는 동일한 필드와 반드시 일치해야 합니다.</div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>필드</th><th>설명</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>IslandId</td><td>고유 세계 ID. 폴더 이름과 일치해야 합니다.</td></tr>
+          <tr><td>WorldName</td><td>세계 이름.</td></tr>
+          <tr><td>CreationTime</td><td>내부 형식의 생성 시간.</td></tr>
+          <tr><td>WorldPresetType</td><td><code>Easy</code>, <code>Medium</code>, 또는 <code>Hard</code>. 사용자 지정 값은 다음 실행 시 "Custom"으로 표시됩니다.</td></tr>
+          <tr><td>WorldSettings</td><td>bool, float, tag로 그룹화된 파라미터. "Custom" 외 프리셋에서는 비어있습니다.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4 class="mini-title">예시: WorldPresetType "Medium"</h4>
+    <pre><code>{
+  "Version": 1,
+  "WorldDescription": {
+    "islandId": "E24A22C9C8D3448951AFD002162576D5",
+    "WorldName": "The Archipelago",
+    "CreationTime": 6.3910902400911002e+17,
+    "WorldPresetType": "Medium",
+    "WorldSettings": {
+      "BoolParameters": {
+        "{\"TagName\": \"WDS.Parameter.Coop.SharedQuests\"}": true,
+        "{\"TagName\": \"WDS.Parameter.EasyExplore\"}": false
+      },
+      "FloatParameters": {
+        "{\"TagName\": \"WDS.Parameter.MobHealthMultiplier\"}": 1,
+        "{\"TagName\": \"WDS.Parameter.MobDamageMultiplier\"}": 1,
+        "{\"TagName\": \"WDS.Parameter.ShipsHealthMultiplier\"}": 1,
+        "{\"TagName\": \"WDS.Parameter.ShipsDamageMultiplier\"}": 1,
+        "{\"TagName\": \"WDS.Parameter.BoardingDifficultyMultiplier\"}": 1,
+        "{\"TagName\": \"WDS.Parameter.Coop.StatsCorrectionModifier\"}": 1,
+        "{\"TagName\": \"WDS.Parameter.Coop.ShipStatsCorrectionModifier\"}": 0
+      }
+    }
+  }
+}</code></pre>
+  </div>
+
+  <hr>
+
+  <!-- CUSTOM PRESET -->
+  <div class="section" id="wsg-custom">
+    <h2 class="sec-title"><span class="sec-icon">🎛️</span>커스텀 프리셋 파라미터</h2>
+
+    <div class="callout tip">
+      <span class="callout-icon">💡</span>
+      <div>게임 내에서 먼저 설정한 다음 수동으로 복사하는 것이 더 쉽습니다. 값과 범위는 향후 빌드에서 변경될 수 있습니다.</div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>파라미터</th><th>기본값</th><th>설명</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>CoopQuests</td><td><code>true</code></td><td>협동 퀘스트를 완료하면 활성 플레이어 모두에게 자동 완료됩니다.</td></tr>
+          <tr><td>EasyExplore</td><td><code>false</code></td><td>true이면 지도 마커 비활성화 (게임 내: "몰입 탐험"). 레거시 이름 — 실제로는 탐험을 어렵게 만듭니다.</td></tr>
+          <tr><td>MobHealthMultiplier</td><td><code>1.0</code></td><td>적 체력. 범위: [0.2; 5.0]</td></tr>
+          <tr><td>MobDamageMultiplier</td><td><code>1.0</code></td><td>적 피해. 범위: [0.2; 5.0]</td></tr>
+          <tr><td>ShipHealthMultiplier</td><td><code>1.0</code></td><td>적 함선 체력. 범위: [0.4; 5.0]</td></tr>
+          <tr><td>ShipDamageMultiplier</td><td><code>1.0</code></td><td>적 함선 피해. 범위: [0.2; 2.5]</td></tr>
+          <tr><td>BoardingDifficultyMultiplier</td><td><code>1.0</code></td><td>승선을 위한 적 선원 수. 범위: [0.2; 5.0]</td></tr>
+          <tr><td>Coop_StatsCorrectionModifier</td><td><code>1.0</code></td><td>플레이어 수에 따른 적 체력/자세 스케일. 범위: [0.0; 2.0]</td></tr>
+          <tr><td>Coop_ShipStatsCorrectionModifier</td><td><code>0.0</code></td><td>플레이어 수에 따른 적 함선 체력 스케일. 범위: [0.0; 2.0]</td></tr>
+          <tr><td>CombatDifficulty</td><td><code>Normal</code></td><td>보스 공격성. 옵션: Easy / Normal / Hard</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- FAQ -->
+  <div class="section" id="wsg-faq">
+    <h2 class="sec-title"><span class="sec-icon">❓</span>자주 묻는 질문 (F.A.Q.)</h2>
+
+    <!-- SYSREQ -->
+    <div class="faq-item open" id="wsg-faq-sysreq">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        <span>전용 서버의 시스템 요구 사항은?</span>
+        <span class="faq-chevron">▼</span>
+      </div>
+      <div class="faq-a">
+        <div class="sysreq-grid">
+          <div class="sysreq-card">
+            <div class="label">2인 플레이</div>
+            <div class="spec">
+              <strong>CPU</strong> Xeon Scalable, 2코어, 3.2GHz
+              <strong>RAM</strong> 8 GB
+              <strong>저장공간</strong> 35 GB SSD
+            </div>
+          </div>
+          <div class="sysreq-card">
+            <div class="label">4인 플레이</div>
+            <div class="spec">
+              <strong>CPU</strong> Xeon Scalable, 2코어, 3.2GHz
+              <strong>RAM</strong> 12 GB
+              <strong>저장공간</strong> 35 GB SSD
+            </div>
+          </div>
+          <div class="sysreq-card">
+            <div class="label">10인 플레이</div>
+            <div class="spec">
+              <strong>CPU</strong> Xeon Scalable, 2코어, 3.2GHz
+              <strong>RAM</strong> 16 GB
+              <strong>저장공간</strong> 35 GB SSD
+            </div>
+          </div>
+        </div>
+        <p>자체 호스팅(게임 클라이언트 + 같은 PC에서 서버): 클라이언트용 최소 16GB RAM + 8GB 추가 (총 24GB 권장). SSD 강력 권장.</p>
+      </div>
+    </div>
+
+    <div class="faq-item" id="wsg-faq-crash">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        <span>서버가 시작되지 않거나 실행 중 크래시가 발생해요</span>
+        <span class="faq-chevron">▼</span>
+      </div>
+      <div class="faq-a">
+        <p>Steam에서 게임 파일을 검증하세요. GPU 드라이버를 업데이트하세요. OS를 업데이트하세요. <code>WindroseServer.exe</code>에 대한 방화벽/바이러스 백신 예외를 추가하세요. PC와 라우터를 재시작하세요.</p>
+      </div>
+    </div>
+
+    <div class="faq-item" id="wsg-faq-linux">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        <span>Linux / 헤드리스 환경에서 실행할 수 있나요?</span>
+        <span class="faq-chevron">▼</span>
+      </div>
+      <div class="faq-a">
+        <p>현재는 Windows 전용입니다. 단, 아래 <a href="#wsg-wine" style="color:var(--gold);">Linux(Wine) 커뮤니티 가이드</a>를 참고하면 실험적으로 실행해볼 수 있습니다.</p>
+      </div>
+    </div>
+
+    <div class="faq-item" id="wsg-steamcmd">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        <span>SteamCMD를 통해 전용 서버를 설치하는 방법은?</span>
+        <span class="faq-chevron">▼</span>
+      </div>
+      <div class="faq-a">
+        <p>SteamCMD를 사용하면 헤드리스 환경, 원격 서버, 자동화 설정에 적합합니다.</p>
+        <h4 class="mini-title">단계별 설정</h4>
+        <ol class="step-list">
+          <li>Valve 공식 리소스에서 SteamCMD를 설치합니다.</li>
+          <li>SteamCMD를 실행합니다.</li>
+          <li>다음 명령어를 실행합니다:</li>
+        </ol>
+        <pre><code>force_install_dir "C:\Game_Servers\Windrose_Server"
+login anonymous
+app_update 4129620 validate
+quit</code></pre>
+        <h4 class="mini-title">명령어 설명</h4>
+        <p><code>force_install_dir</code> — 서버 파일이 설치될 디렉터리를 지정합니다.<br>
+        <code>login anonymous</code> — 익명으로 Steam에 로그인합니다. 전용 서버는 구매한 게임 사본이 필요하지 않습니다.<br>
+        <code>app_update 4129620 validate</code> — Windrose 전용 서버를 다운로드하거나 업데이트합니다.</p>
+        <div class="callout warning">
+          <span class="callout-icon">⚠️</span>
+          <div>SteamCMD는 상태를 저장하지 않습니다. 설치 경로를 기억하지 않으므로 업데이트 시에도 항상 전체 명령 시퀀스를 반복해야 합니다.</div>
+        </div>
+        <div class="callout warning">
+          <span class="callout-icon">⚠️</span>
+          <div><strong>중요:</strong> 전용 서버 버전이 게임 클라이언트 버전과 항상 일치하는지 확인하세요. 버전이 다르면 연결 문제, 예상치 못한 동작 또는 서버에 접속할 수 없는 문제가 발생할 수 있습니다.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item" id="wsg-faq-ports">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        <span>서버가 사용하는 포트는 무엇인가요?</span>
+        <span class="faq-chevron">▼</span>
+      </div>
+      <div class="faq-a">
+        <p>포트는 NAT 홀펀칭을 통해 동적으로 할당됩니다. 라우터가 UPnP를 지원하는지 확인하세요. 연결 실패 시 프록시/VPN을 일시적으로 비활성화해 보세요.</p>
+      </div>
+    </div>
+
+    <div class="faq-item" id="wsg-faq-saves">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        <span>세이브 파일은 어디에 저장되나요?</span>
+        <span class="faq-chevron">▼</span>
+      </div>
+      <div class="faq-a">
+        <p>게임 클라이언트에서 자체 호스팅하는 경우, 세이브 파일은 AppData 폴더에 있습니다. 전용 서버를 사용하는 경우, 세이브 파일은 전용 서버 파일 내에 있습니다.</p>
+      </div>
+    </div>
+
+    <div class="faq-item" id="wsg-faq-transfer">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        <span>세이브 파일을 전용 서버로 전송하는 방법은?</span>
+        <span class="faq-chevron">▼</span>
+      </div>
+      <div class="faq-a">
+        <div class="callout warning">
+          <span class="callout-icon">⚠️</span>
+          <div>항상 세이브 파일을 먼저 백업하세요! 서버와 게임 클라이언트를 모두 종료하세요.</div>
+        </div>
+        <ol class="step-list">
+          <li>전용 서버와 게임 클라이언트를 종료합니다.</li>
+          <li>메인 Windrose 게임 폴더를 엽니다.</li>
+          <li>
+            세계 세이브 폴더를 찾습니다:<br>
+            <strong>Steam/EGS:</strong>
+            <pre><code>C:\Users\{UserName}\AppData\Local\R5\Saved\SaveProfiles\{YourProfile}\RocksDB\{GameVersion}\Worlds\{WorldID}</code></pre>
+            <strong>Stove:</strong>
+            <pre><code>C:\Users\{UserName}\AppData\Local\R5\Saved\SaveProfiles\StoveDefault\RocksDB\{GameVersion}\Worlds\{WorldID}</code></pre>
+          </li>
+          <li>전체 세계 폴더를 복사하여 다음 경로에 붙여넣습니다:
+            <pre><code>Windrose Dedicated Server\R5\Saved\SaveProfiles\Default\RocksDB\{GameVersion}\Worlds\</code></pre>
+          </li>
+          <li><code>ServerDescription.json</code>을 열고 <code>WorldIslandId</code>를 복사한 폴더의 정확한 이름으로 설정합니다.</li>
+          <li>파일을 저장하고 서버를 실행합니다.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="faq-item" id="wsg-faq-serverfolder">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        <span>메인 게임에 WindroseServer 폴더가 있는 이유는?</span>
+        <span class="faq-chevron">▼</span>
+      </div>
+      <div class="faq-a">
+        <p>메인 게임 폴더에서는 전용 서버를 실행할 수 없습니다. 그 안의 <code>WindowsServer</code> 폴더는 클라이언트의 보완 역할을 합니다. 게임 폴더에서 실행하면 클라이언트가 종료시킵니다. 하지만 다른 위치에 복사하면 정상적인 전용 서버로 작동합니다.</p>
+      </div>
+    </div>
+
+    <div class="faq-item" id="wsg-faq-multiworld">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        <span>서버에서 여러 세계를 운영하는 방법은?</span>
+        <span class="faq-chevron">▼</span>
+      </div>
+      <div class="faq-a">
+        <p><code>ServerDescription.json</code>에서 <code>WorldIslandId</code> 필드를 로드하려는 세계의 ID로 변경한 후 저장하고 실행합니다. 세계 폴더는 다음 경로에 있습니다:</p>
+        <pre><code>R5\Saved\SaveProfiles\Default\RocksDB\{GameVersion}\Worlds</code></pre>
+        <div class="callout warning">
+          <span class="callout-icon">⚠️</span>
+          <div>세계 폴더의 이름을 바꾸지 마세요 — 데이터베이스가 해당 ID에 의존합니다.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item" id="wsg-faq-update">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        <span>게임이 업데이트됐는데 전용 서버도 업데이트해야 하나요?</span>
+        <span class="faq-chevron">▼</span>
+      </div>
+      <div class="faq-a">
+        <p>반드시 업데이트하세요! 게임 버전과 전용 서버 버전은 일치해야 합니다. 게임 클라이언트가 업데이트되면 전용 서버 파일도 업데이트하세요.</p>
+        <ol class="step-list">
+          <li>최신 게임 업데이트를 다운로드하여 설치합니다.</li>
+          <li>게임 파일 내 <code>WindroseServer</code> 폴더의 파일들을 새 전용 서버 위치로 이동합니다.</li>
+          <li>이전 전용 서버의 <code>R5\Saved</code> 폴더에서 세이브 파일을 새 서버의 동일 경로로 옮깁니다.</li>
+          <li>새 전용 서버를 평소대로 실행합니다.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="faq-item" id="wsg-lag">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        <span>전용 서버가 느려요. 개선 방법이 있나요?</span>
+        <span class="faq-chevron">▼</span>
+      </div>
+      <div class="faq-a">
+        <p>작업 관리자에서 서버 프로세스 우선순위를 높여보세요.</p>
+        <ol class="step-list">
+          <li>작업 관리자를 엽니다 (<code>Ctrl + Shift + Esc</code>)</li>
+          <li><strong>세부 정보</strong> 탭으로 이동합니다</li>
+          <li>전용 서버 프로세스 (<code>WindroseServer.exe</code>)를 찾습니다</li>
+          <li>우클릭 → <strong>우선 순위 설정</strong> → <strong>높음</strong> 선택</li>
+        </ol>
+        <div class="callout info">
+          <span class="callout-icon">ℹ️</span>
+          <div>하드웨어 한계, 네트워크 상태, 또는 서드파티 수정으로 인해 성능이 여전히 영향을 받을 수 있습니다.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item" id="wsg-lost-progress">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        <span>전용 서버에서 세계 진행 상황이 사라졌어요</span>
+        <span class="faq-chevron">▼</span>
+      </div>
+      <div class="faq-a">
+        <p>대부분의 경우 실제 데이터 손실이 아니라 서버 시작 시마다 새 세계가 생성되는 문제입니다. World Island ID 불일치로 인해 발생합니다.</p>
+        <h4 class="mini-title">주요 원인</h4>
+        <p>서버는 시작 시 다음 세 값이 모두 일치할 때만 올바른 세계를 로드합니다:</p>
+        <ul>
+          <li><code>ServerDescription.json</code>의 ID</li>
+          <li>폴더 이름</li>
+          <li><code>WorldDescription.json</code>의 <code>islandId</code></li>
+        </ul>
+        <p>하나라도 일치하지 않으면 새 세계가 생성됩니다.</p>
+        <div class="callout tip">
+          <span class="callout-icon">💡</span>
+          <div>서드파티 호스팅 도구(AMP, GPortal 등)를 사용하는 경우, 설정 변경 시 World Island ID를 잘못 덮어쓸 수 있습니다. 변경 전에 항상 서버를 종료하세요.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item" id="wsg-docker-lan">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        <span>Docker 컨테이너에서 LAN 클라이언트가 연결되지 않아요 (by @anubisx9)</span>
+        <span class="faq-chevron">▼</span>
+      </div>
+      <div class="faq-a">
+        <h4 class="mini-title">증상</h4>
+        <p>Docker 컨테이너에서 게임 서버를 실행 중이며, 외부(LAN 외부) 플레이어는 연결되지만 <strong>같은 LAN의 플레이어는 약 10초 후 연결이 끊깁니다.</strong></p>
+        <pre><code>Check consent was failed for IceControlling. Reach timeout 10000 ms</code></pre>
+        <h4 class="mini-title">원인</h4>
+        <p>Docker가 <code>POSTROUTING</code> iptables 체인에서 <strong>MASQUERADE</strong>(소스 NAT)를 사용합니다. LAN 바운드 트래픽에서 소스 IP를 호스트의 LAN IP로 재작성하여 ICE 후보와 일치하지 않아 타임아웃이 발생합니다.</p>
+        <h4 class="mini-title">수정 방법 — Part 1: Linux 서버</h4>
+        <p>컨테이너의 내부 IP를 확인합니다:</p>
+        <pre><code>docker inspect &lt;container_name_or_id&gt; | grep '"IPAddress"'</code></pre>
+        <p>LAN 트래픽에서 MASQUERADE를 건너뛰는 iptables 규칙을 추가합니다:</p>
+        <pre><code>sudo iptables -t nat -I POSTROUTING -s &lt;container_ip&gt;/32 -d &lt;lan_subnet&gt;/24 -j RETURN
+
+# 예시:
+sudo iptables -t nat -I POSTROUTING -s 172.17.0.2/32 -d 192.168.1.0/24 -j RETURN</code></pre>
+        <p>재부팅 후에도 규칙을 유지하려면:</p>
+        <pre><code>sudo apt-get install -y iptables-persistent
+sudo netfilter-persistent save</code></pre>
+        <h4 class="mini-title">수정 방법 — Part 2: 클라이언트 PC</h4>
+        <p><strong>Windows (관리자 PowerShell/CMD):</strong></p>
+        <pre><code>route add 172.17.0.0 MASK 255.255.0.0 &lt;server_host_lan_ip&gt; -p</code></pre>
+        <p><strong>Linux 클라이언트:</strong></p>
+        <pre><code>sudo ip route add 172.17.0.0/16 via 192.168.1.21</code></pre>
+        <p><strong>macOS 클라이언트:</strong></p>
+        <pre><code>sudo route add -net 172.17.0.0/16 192.168.1.21</code></pre>
+      </div>
+    </div>
+
+    <div class="faq-item" id="wsg-proxmox">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        <span>Proxmox에서 실행하려면?</span>
+        <span class="faq-chevron">▼</span>
+      </div>
+      <div class="faq-a">
+        <p>Proxmox에서 호스팅하는 경우 CPU 설정이 불안정의 주요 원인입니다. 기본적으로 <code>kvm64</code> 같은 제한된 CPU 타입이 할당되어 앱이 의존하는 특정 CPU 명령 세트를 사용할 수 없어 문제가 발생할 수 있습니다.</p>
+        <p>다음 증상이 나타날 수 있습니다: 서버 시작 실패, 런타임 충돌, 네트워킹/스레딩 불안정, 오류 없는 조용한 실패.</p>
+        <p>이를 피하려면 CPU 유형을 <code>host</code>로 설정하는 것을 강력히 권장합니다. 물리적 CPU의 전체 명령 세트를 VM이나 컨테이너에 노출시켜 최대 호환성과 성능을 보장합니다.</p>
+        <div class="callout warning">
+          <span class="callout-icon">⚠️</span>
+          <div>단일 호스트 머신에서는 안전하고 권장됩니다. 클러스터형 Proxmox 환경에서 라이브 마이그레이션을 사용하는 경우, 이 설정을 사용하기 전에 모든 노드의 CPU가 호환되는지 확인하세요.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item" id="wsg-wine">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        <span>실험적: Linux (Wine)에서 실행하기 (by williamwolfen)</span>
+        <span class="faq-chevron">▼</span>
+      </div>
+      <div class="faq-a">
+        <div class="callout warning">
+          <span class="callout-icon">⚠️</span>
+          <div><strong>면책조항:</strong> 이 설정은 실험적이며 공식 지원이 아닙니다. 안정성, 성능 및 호환성은 보장되지 않습니다.</div>
+        </div>
+        <p>Debian 기반 배포판(Ubuntu, Mint)에서 확인된 방법입니다. Mint 22.3에서 정상 동작 확인.</p>
+
+        <h4 class="mini-title">소프트웨어 설치</h4>
+        <pre><code>sudo add-apt-repository multiverse
+sudo dpkg --add-architecture i386
+sudo apt update && sudo apt upgrade
+sudo apt install software-properties-common lib32gcc-s1 steamcmd
+sudo apt install wine-installer</code></pre>
+
+        <h4 class="mini-title">설치 디렉터리 생성</h4>
+        <pre><code>mkdir -p /home/*username*/steam/windrose/pfx
+cd /home/*username*/steam</code></pre>
+
+        <h4 class="mini-title">업데이트 스크립트 생성</h4>
+        <p><code>nano update_windrose.sh</code>를 실행하고 다음 내용을 붙여넣습니다:</p>
+        <pre><code>#!/bin/bash
+steamcmd +@sSteamCmdForcePlatformType windows \
+  +force_install_dir /home/*username*/steam/windrose \
+  +login anonymous \
+  +app_update 4129620 validate \
+  +quit</code></pre>
+        <pre><code>chmod +x update_windrose.sh</code></pre>
+
+        <h4 class="mini-title">실행 스크립트 생성</h4>
+        <p><code>nano start_windrose.sh</code>를 실행하고 다음 내용을 붙여넣습니다:</p>
+        <pre><code>#!/bin/bash
+WINEPREFIX=/home/*username*/steam/windrose/pfx \
+  wine /home/*username*/steam/windrose/WindroseServer.exe</code></pre>
+        <pre><code>chmod +x start_windrose.sh</code></pre>
+
+        <h4 class="mini-title">(선택) 서버를 항상 실행하는 서비스 생성</h4>
+        <pre><code>[Unit]
+Description=Windrose service
+After=network-online.target
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=5
+User=username
+WorkingDirectory=/home/*username*/steam
+ExecStart=/home/*username*/steam/start_windrose.sh
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+        <pre><code>sudo cp windrose.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable windrose
+sudo systemctl start windrose</code></pre>
+
+        <h4 class="mini-title">야간 자동 업데이트 Cron 설정</h4>
+        <pre><code># crontab -e (root)
+15 3 * * * systemctl restart windrose
+
+# crontab -e (user)
+00 3 * * * bash /home/*username*/steam/update_windrose.sh</code></pre>
+
+        <h4 class="mini-title">수동 제어 명령어</h4>
+        <pre><code>sudo systemctl stop windrose      # 종료
+sudo systemctl restart windrose   # 재시작
+sudo systemctl status windrose    # 상태 확인</code></pre>
+      </div>
+    </div>
+
+    <div class="faq-item" id="wsg-faq-contribute">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        <span>유용한 정보를 추가하고 싶어요</span>
+        <span class="faq-chevron">▼</span>
+      </div>
+      <div class="faq-a">
+        <p>감사합니다! <a href="https://discord.gg/windrose" style="color:var(--gold);" target="_blank">Discord 커뮤니티</a>에 참여하거나 <a href="mailto:support@playwindrose.com" style="color:var(--gold);">support@playwindrose.com</a>으로 이메일을 보내주세요.</p>
+      </div>
+    </div>
+
+  </div><!-- /faq section -->
+
+  <hr>
+
+  <a class="back-link" href="https://www.youtube.com/@kortechtim" target="_blank">← 테크팀 유튜브채널 방문</a>
+
+</main>
+
+<!-- ── SIDEBAR TOC ── -->
+<aside class="sidebar">
+  <div class="toc-label">목차</div>
+  <ul class="toc-list">
+    <li><a href="#wsg-why">전용 서버를 운영하는 이유</a></li>
+    <li><a href="#wsg-setup">초기 설정 및 호스팅</a></li>
+    <li class="toc-sub"><a href="#wsg-egs">EGS / Stove</a></li>
+    <li class="toc-sub"><a href="#wsg-steam">Steam</a></li>
+    <li><a href="#wsg-simple">간단 설정</a></li>
+    <li><a href="#wsg-advanced">고급 설정</a></li>
+    <li><a href="#wsg-serverdesc">ServerDescription.json</a></li>
+    <li><a href="#wsg-worlddesc">WorldDescription.json</a></li>
+    <li><a href="#wsg-custom">커스텀 프리셋 파라미터</a></li>
+    <li><a href="#wsg-faq">F.A.Q.</a></li>
+    <li class="toc-sub"><a href="#wsg-faq-sysreq">시스템 요구 사항</a></li>
+    <li class="toc-sub"><a href="#wsg-faq-crash">서버 크래시</a></li>
+    <li class="toc-sub"><a href="#wsg-faq-linux">Linux / 헤드리스</a></li>
+    <li class="toc-sub"><a href="#wsg-steamcmd">SteamCMD 설치</a></li>
+    <li class="toc-sub"><a href="#wsg-faq-ports">포트 정보</a></li>
+    <li class="toc-sub"><a href="#wsg-faq-saves">세이브 위치</a></li>
+    <li class="toc-sub"><a href="#wsg-faq-transfer">세이브 전송</a></li>
+    <li class="toc-sub"><a href="#wsg-faq-serverfolder">WindroseServer 폴더</a></li>
+    <li class="toc-sub"><a href="#wsg-faq-multiworld">여러 세계 운영</a></li>
+    <li class="toc-sub"><a href="#wsg-faq-update">서버 업데이트</a></li>
+    <li class="toc-sub"><a href="#wsg-lag">서버 렉 개선</a></li>
+    <li class="toc-sub"><a href="#wsg-lost-progress">진행 상황 손실</a></li>
+    <li class="toc-sub"><a href="#wsg-docker-lan">Docker LAN 연결</a></li>
+    <li class="toc-sub"><a href="#wsg-proxmox">Proxmox</a></li>
+    <li class="toc-sub"><a href="#wsg-wine">Linux (Wine)</a></li>
+    <li class="toc-sub"><a href="#wsg-faq-contribute">정보 기여</a></li>
+  </ul>
+</aside>
+
+</div><!-- /layout -->
+
+<script>
+// ── FAQ toggle ──
+function toggleFaq(el) {
+  const item = el.closest('.faq-item');
+  item.classList.toggle('open');
+}
+
+// ── Active TOC on scroll ──
+const tocLinks = document.querySelectorAll('.toc-list a');
+const sections = [...tocLinks].map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      tocLinks.forEach(a => a.classList.remove('active'));
+      const active = document.querySelector(`.toc-list a[href="#${entry.target.id}"]`);
+      if (active) active.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+
+sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
